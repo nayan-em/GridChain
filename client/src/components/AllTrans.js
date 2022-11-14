@@ -3,19 +3,19 @@ import axios from 'axios'
 import { useState, useEffect } from "react"
 import Navbar from "./Navbar.js";
 import background from '../img/background.jpg'
-import Card2 from './Card2.js';
+import TransCard from './TransCard.js';
 
-const Transactions = () => {
+const AllTrans = () => {
 
   const location = useLocation();
-  const userId = location.state.userId
+  const userId = location.state.id
 
   const [blocks, setBlocks] = useState([])
 
   useEffect(() => {
-    axios.get("/viewAllTrans", {
+    axios.get("/viewTrans", {
       params: {
-        userId: userId
+        name: "NULL"
       }
     })
       .then(res => {
@@ -26,7 +26,7 @@ const Transactions = () => {
 
   var sectionStyle = {
     backgroundImage: `url(${background})`,
-    height: "100vh",
+    height: blocks.length>3 ? "100%" : "100vh",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover"
@@ -35,7 +35,7 @@ const Transactions = () => {
   return (
     <>
       <div class="bg-image" style={sectionStyle}>
-        <Navbar userId={userId} />
+        <Navbar id={userId} />
         <br />
 
         <div className="jumbotron m-2 my-5">
@@ -51,16 +51,18 @@ const Transactions = () => {
             <div className="col-12">
               <div className="container mt-5">
                 <div className="row">
-                  {blocks.map(block => {
+                  {blocks.map((block, index) => {
                     return (
                       <div className="col-4 mb-5 d-flex justify-content-center">
                         {/* <Link to={`/node/${id}/${item[0]}`} className="text-decoration-none"> */}
-                          <Card2
-                            key={block[0]}
-                            index={block[0]}
-                            timestamp={block[1]}
-                            trans={block[4]}
-                            res={block[5]}
+                          <TransCard
+                            key={index}
+                            num={index+1}
+                            name={block[0]}
+                            direction={block[1]}
+                            energy={block[2]}
+                            price={block[3]}
+                            desc={block[4]}
                           />
                         {/* </Link> */}
                       </div>
@@ -115,4 +117,4 @@ const Transactions = () => {
   )
 }
 
-export default Transactions
+export default AllTrans

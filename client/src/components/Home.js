@@ -23,7 +23,7 @@ function Home() {
 
   var sectionStyle = {
     backgroundImage: `url(${background})`,
-    height: "100vh",
+    height: items.length>3 ? "100%" : "100vh",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover"
@@ -32,7 +32,7 @@ function Home() {
 
   return (
     <div class="bg-image" style={sectionStyle}>
-      <Navbar userId={id}/>
+      <Navbar id={id}/>
       <br />
       
       <div className="styledimg">
@@ -52,13 +52,13 @@ function Home() {
                 {items.map(item => {
                   return (
                     <div className="col-4 mb-5 d-flex justify-content-center">
-                      <Link to={`/node/${id}/${item[0]}`} className="text-decoration-none">
+                      {/* <Link to={`/node/${id}/${item[0]}`} className="text-decoration-none"> */}
                         <Card
                           key={item[0]}
                           name={item[1]}
                           desc={item[2]}
                         />
-                      </Link>
+                      {/* </Link> */}
                     </div>
                   )
                 })}

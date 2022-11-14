@@ -1,15 +1,16 @@
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import axios from 'axios'
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate, useParams, Link } from 'react-router-dom';
 
-function Navbar({ userId }) {
+function Navbar({ id }) {
 
   const navigate = useNavigate()
   const regex = /^\s*$/
 
   const [show, setShow] = useState(false)
+  const [showCreateTrans, setShowCreateTrans] = useState(false)
   const [showBlockchain, setShowBlockchain] = useState(false)
   const [showError, setShowError] = useState(false)
   const [password, setPassword] = useState("")
@@ -17,6 +18,36 @@ function Navbar({ userId }) {
   const [desc, setDesc] = useState("")
   const [isTitleEmpty, setIsTitleEmpty] = useState(false)
   const [isDescEmpty, setIsDescEmpty] = useState(false)
+
+
+  const [user, setUser] = useState([])
+  // const [user2, setUser2] = useState([])
+  const [direction, setDirection] = useState(0)
+  const [energy, setEnergy] = useState("")
+  const [price, setPrice] = useState("")
+  const [isEnergyEmpty, setIsEnergyEmpty] = useState(false)
+  const [isPriceEmpty, setIsPriceEmpty] = useState(false)
+
+  useEffect(() => {
+
+    axios.get("/getUser", {
+      params: {
+        id: id
+      }
+    })
+    .then(res => setUser(res.data))
+
+    // axios.get("/mineBlockchain", {
+    //   params: {
+    //     id1,
+    //     id2
+    //   }
+    // })
+    // .then(res => {
+    //   setBlockchain(res.data)
+    //   console.log(blockchain)
+    // })
+  }, [])
 
   const handleShow = () => setShow(true)
 
@@ -28,6 +59,7 @@ function Navbar({ userId }) {
     setIsDescEmpty(false)
     setShowBlockchain(false)
     setShowError(false)
+    setShowCreateTrans(false)
     setShow(false)
   }
 
@@ -56,11 +88,52 @@ function Navbar({ userId }) {
       })
   }
 
-  const handleViewTrans = () => {
-    navigate('/viewTrans', {
-      state: {
-        userId: userId,
+  const handleAllTrans = () => {
+    navigate('/viewAllTrans', {
+      state: { id }
+    })
+  }
+
+  const handleMyTrans = () => {
+    navigate('/viewMyTrans', {
+      state: { id, name: user[1] }
+    })
+  }
+
+  const handleSubmitTrans = () => {
+    console.log("user: ", user)
+    
+    if (energy.match(regex) != null) {
+      setIsEnergyEmpty(true)
+      return
+    }
+    else setIsEnergyEmpty(false)
+
+    if (price.match(regex) != null) {
+      setIsPriceEmpty(true)
+      return
+    }
+    else setIsPriceEmpty(false)
+
+    if (desc.match(regex) != null) {
+      setIsDescEmpty(true)
+      return
+    }
+    else setIsDescEmpty(false)
+
+    axios.post("/addTrans", {}, {
+      params: {
+        // id: user[0],
+        name: user[1],
+        direction,
+        energy,
+        price,
+        desc
       }
+    })
+    .then(res => {
+      handleClose()
+      navigate(0)
     })
   }
 
@@ -68,7 +141,7 @@ function Navbar({ userId }) {
     if(password === "admin123")
       navigate('/viewBlockchain', {
         state: {
-          userId: userId,
+          userId: id,
         }
       })
     else{
@@ -85,7 +158,7 @@ function Navbar({ userId }) {
       <nav className="navbar navbar-expand-lg navbar-light shadow-5-strong pt-3">
         <div className="container">
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <Link to={'/home/'+userId} style={{ textDecoration: 'none' }}>
+            <Link to={'/home/'+id} style={{ textDecoration: 'none' }}>
             <div className="navbar-brand mt-2 mt-lg-0 text-muted">GridChain</div>
             </Link>
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -95,7 +168,15 @@ function Navbar({ userId }) {
               </div> */}
 
               <div className="nav-item me-4" style={{ "cursor": "pointer" }}>
-                <div className="nav-link" onClick={handleViewTrans}>All Transactions</div>
+                <div className="nav-link" onClick={() => setShowCreateTrans(true)}>Create Trans</div>
+              </div>
+
+              <div className="nav-item me-4" style={{ "cursor": "pointer" }}>
+                <div className="nav-link" onClick={handleAllTrans}>All Trans</div>
+              </div>
+
+              <div className="nav-item me-4" style={{ "cursor": "pointer" }}>
+                <div className="nav-link" onClick={handleMyTrans}>My Trans</div>
               </div>
 
               <div className="nav-item" style={{ "cursor": "pointer" }}>
@@ -110,31 +191,6 @@ function Navbar({ userId }) {
           </div>
         </div>
       </nav>
-
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Modal heading</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-              <Form.Label>Title</Form.Label>
-              <Form.Control type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter Title" required autoFocus />
-              <div className={"text-danger mt-2 " + (isTitleEmpty ? "" : "d-none")}> Title can not be empty!</div>
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <textarea className="form-control" rows="3" value={desc} onChange={e => setDesc(e.target.value)} placeholder="Enter description" />
-              <div className={"text-danger mt-2 " + (isDescEmpty ? "" : "d-none")}> Desc can not be empty!</div>
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <button className="btn btn-secondary" onClick={handleClose}>Close</button>
-          <button className="btn btn-primary" onClick={handleSubmit}>Submit</button>
-        </Modal.Footer>
-      </Modal>
 
       <Modal show={showBlockchain} onHide={handleClose}>
         <Modal.Header closeButton>
@@ -152,6 +208,57 @@ function Navbar({ userId }) {
         <Modal.Footer>
           <button className="btn btn-secondary" onClick={handleClose}>Close</button>
           <button className="btn btn-primary" onClick={handleSubmitPass}>Submit</button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showCreateTrans} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Create Transactions</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <div key={`inline-radio`} className="mb-3">
+              <Form.Check
+                inline
+                label="Selling"
+                value={direction}
+                checked={direction === 0}
+                onChange={e => setDirection(0)}
+                type="radio"
+              />
+              <Form.Check
+                inline
+                label="Buying"
+                type="radio"
+                value={direction}
+                checked={direction === 1}
+                onChange={e => setDirection(1)}
+              />
+            </div>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Energy Amount (in kWh)</Form.Label>
+                <Form.Control type="number" step="0.05" value={energy} onChange={e => setEnergy(e.target.value)} placeholder="Enter Energy Amount" required />
+                <div className={"text-danger mt-2 " + (isEnergyEmpty ? "" : "d-none")}> Energy can not be empty!</div>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Price (in $/kWh)</Form.Label>
+                <Form.Control type="number" step="0.05" value={price} onChange={e => setPrice(e.target.value)} placeholder="Enter Price" required />
+                <div className={"text-danger mt-2 " + (isPriceEmpty ? "" : "d-none")}> Price can not be empty!</div>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Description</Form.Label>
+              <textarea className="form-control" rows="3" value={desc} onChange={e => setDesc(e.target.value)} placeholder="Enter description" />
+              <div className={"text-danger mt-2 " + (isDescEmpty ? "" : "d-none")}> Desc can not be empty!</div>
+            </Form.Group>
+
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <button className="btn btn-secondary" onClick={handleClose}>Close</button>
+          <button className="btn btn-primary" onClick={handleSubmitTrans}>Submit</button>
         </Modal.Footer>
       </Modal>
     </>

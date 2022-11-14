@@ -18,6 +18,14 @@ conn.execute("""CREATE TABLE IF NOT EXISTS users (
   password text not null
 )""")
 
+conn.execute("""CREATE TABLE IF NOT EXISTS trans (
+  name text not null,
+  direction text not null,
+  energy text not null,
+  price text not null,
+  desc text not null
+)""")
+
 conn.close()
 
 # Initalize Blockchain object with given difficulty
@@ -62,6 +70,29 @@ def getAllUsers():
     id = request.args.get('id')
     users = dbHandler.getAllUsers(id)
     return jsonify(users)
+
+@app.route('/viewTrans', methods=['GET'])
+def viewTrans():
+    name = request.args.get('name')
+    if name == "NULL":
+        trans = dbHandler.getAllTrans()
+    else:
+        trans = dbHandler.getMyTrans(name)
+
+    return jsonify(trans)
+
+@app.route('/addTrans', methods=['POST'])
+def addTrans():
+    # id = request.args.get('id')
+    name = request.args.get('name')
+    direction = request.args.get('direction')
+    energy = request.args.get('energy')
+    price = request.args.get('price')
+    desc = request.args.get('desc')
+    print("this is the id:::::::::::::::: ", id)
+
+    dbHandler.insertTrans(name, direction, energy, price, desc)
+    return "Trans added successfully"
 
 @app.route('/createTrans', methods=['POST'])
 def createTrans():

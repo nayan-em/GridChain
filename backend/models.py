@@ -25,6 +25,31 @@ def getAllUsers(id):
   con.close()
   return users
 
+def insertTrans(name, direction, energy, price, desc):
+  con = sql.connect("database.db")
+  cur = con.cursor()
+  cur.execute("INSERT INTO trans VALUES (?,?,?,?,?);", (name, direction, energy, price, desc))
+  con.commit()
+  con.close()
+
+def getAllTrans():
+  con = sql.connect("database.db")
+  cur = con.cursor()
+  cur.execute("SELECT * FROM trans")
+  trans = cur.fetchall()
+  con.commit()
+  con.close()
+  return trans
+
+def getMyTrans(name):
+  con = sql.connect("database.db")
+  cur = con.cursor()
+  cur.execute("SELECT * FROM trans WHERE trans.name=?;", (name,))
+  trans = cur.fetchall()
+  con.commit()
+  con.close()
+  return trans
+
 def insertCandidate(pollId, name, desc):
   con = sql.connect("database.db")
   cur = con.cursor()
