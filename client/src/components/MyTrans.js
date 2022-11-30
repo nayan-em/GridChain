@@ -1,9 +1,11 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { useState, useEffect } from "react"
 import Navbar from "./Navbar.js";
 import background from '../img/background.jpg'
-import TransCard from './TransCard.js';
+import TransCard from './TransCard.js'
+import { hours } from './Utils'
+import Select from 'react-select'
 
 const MyTrans = () => {
 
@@ -12,18 +14,21 @@ const MyTrans = () => {
   const name = location.state.name
 
   const [blocks, setBlocks] = useState([])
+  const [selectedHour, setSelectedHour] = useState(0)
 
   useEffect(() => {
+    console.log("executing axios query with hour: ", selectedHour);
     axios.get("/viewTrans", {
       params: {
-        name
+        name,
+        selectedHour
       }
     })
       .then(res => {
-        console.log("this is the response", res.data)
+        // console.log("this is the response", res.data)
         setBlocks(res.data)
       })
-  }, [])
+  }, [selectedHour])
 
   var sectionStyle = {
     backgroundImage: `url(${background})`,
@@ -40,37 +45,55 @@ const MyTrans = () => {
         <br />
 
         <div className="jumbotron m-2 my-5">
-          <div className="container text-center">
-            <h1>Grid Chain</h1>
-            <p>a blockchain based grid management system</p>
+          <div className="container text-center display-6">
+            My Transactions
+            {/* <p>a blockchain based grid management system</p> */}
           </div>
         </div>
         <br />
 
         <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <div className="container mt-5">
-                <div className="row">
-                  {blocks.map((block, index) => {
-                    return (
-                      <div className="col-4 mb-5 d-flex justify-content-center">
-                        {/* <Link to={`/node/${id}/${item[0]}`} className="text-decoration-none"> */}
-                          <TransCard
-                            key={index}
-                            num={index+1}
-                            name={block[0]}
-                            direction={block[1]}
-                            energy={block[2]}
-                            price={block[3]}
-                            desc={block[4]}
-                          />
-                        {/* </Link> */}
-                      </div>
-                    )
-                  })}
+          <div className="container mt-5">
+            <div className="row ms-2 mb-4">
+                <div className="col-2">
+                  <div className="row align-items-center">
+                    <div className="col-4 h5 pt-2">
+                      Hour
+                    </div>
+                    <div className="col-8">
+                      <Select
+                        className='my-3'
+                        name="form-field-name"
+                        options={hours}
+                        placeholder="0"                   
+                        onChange={e => setSelectedHour(e.value)}
+                      />
+                    </div>
+                  </div>
                 </div>
+                {/* <div className="col-1">
+
+                </div> */}
               </div>
+            <div className="row">
+              {blocks.map((block, index) => {
+                return (
+                  <div className="col-4 mb-5 d-flex justify-content-center">
+                    {/* <Link to={`/node/${id}/${item[0]}`} className="text-decoration-none"> */}
+                      <TransCard
+                        key={index}
+                        num={index+1}
+                        id={block[0]}
+                        name={block[1]}
+                        direction={block[2]}
+                        energy={block[3]}
+                        price={block[4]}
+                        desc={block[5]}
+                      />
+                    {/* </Link> */}
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>

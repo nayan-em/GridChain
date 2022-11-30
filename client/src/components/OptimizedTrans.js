@@ -3,36 +3,33 @@ import axios from 'axios'
 import { useState, useEffect } from "react"
 import Navbar from "./Navbar.js";
 import background from '../img/background.jpg'
-import TransCard from './TransCard.js';
+import Card3 from './Card3.js';
 import { hours } from './Utils'
 import Select from 'react-select'
 
-
-const AllTrans = () => {
+const OptimizedTrans = () => {
 
   const location = useLocation();
   const userId = location.state.id
 
-  const [blocks, setBlocks] = useState([])
+  const [trans, setTrans] = useState([]) 
   const [selectedHour, setSelectedHour] = useState(0)
 
   useEffect(() => {
-    console.log("executing axios query with hour: ", selectedHour);
-    axios.get("/viewTrans", {
+    axios.get("/optimizeTrans", {
       params: {
-        name: "NULL",
-        selectedHour
+        hour: selectedHour
       }
     })
-      .then(res => {
-        // console.log("this is the response", res.data)
-        setBlocks(res.data)
-      })
+    .then(res => {
+      console.log("??????", res.data);
+      setTrans([res.data])})
+    .catch(err => console.log(err))
   }, [selectedHour])
 
   var sectionStyle = {
     backgroundImage: `url(${background})`,
-    height: blocks.length>3 ? "100%" : "100vh",
+    height: trans.length>3 ? "100%" : "100vh",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover"
@@ -46,7 +43,7 @@ const AllTrans = () => {
 
         <div className="jumbotron m-2 my-5">
           <div className="container text-center display-6">
-            All Transactions
+            Optimized Transactions
             {/* <p>a blockchain based grid management system</p> */}
           </div>
         </div>
@@ -64,8 +61,8 @@ const AllTrans = () => {
                     <Select
                       className='my-3'
                       name="form-field-name"
-                      placeholder="0"
                       options={hours}
+                      placeholder="0"                   
                       onChange={e => setSelectedHour(e.value)}
                     />
                   </div>
@@ -76,19 +73,14 @@ const AllTrans = () => {
               </div> */}
             </div>
             <div className="row">
-              {blocks.map((block, index) => {
+              {trans.map((tran, index) => {
                 return (
-                  <div className="col-4 mb-5 d-flex justify-content-center">
+                  <div className="col-6 d-flex justify-content-center">
                     {/* <Link to={`/node/${id}/${item[0]}`} className="text-decoration-none"> */}
-                      <TransCard
+                      <Card3
                         key={index}
-                        num={index+1}
-                        id={block[0]}
-                        name={block[1]}
-                        direction={block[3]}
-                        energy={block[4]}
-                        price={block[5]}
-                        desc={block[6]}
+                        hour={selectedHour}
+                        transactions={tran}
                       />
                     {/* </Link> */}
                   </div>
@@ -103,4 +95,4 @@ const AllTrans = () => {
   )
 }
 
-export default AllTrans
+export default OptimizedTrans

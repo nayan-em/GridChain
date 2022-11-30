@@ -16,7 +16,6 @@ const Blockchain = () => {
     axios.get("/viewBlockchain")
     .then(res => setBlocks(res.data))
     .catch(err => console.log(err))
-
   }, [])
   
   
@@ -31,7 +30,7 @@ const Blockchain = () => {
   return (
     <>
     <div className="bg-image" style={sectionStyle}>
-      <Navbar userId={userId}/>
+      <Navbar id={userId}/>
       <br />
 
       <div className="jumbotron m-2 my-5">

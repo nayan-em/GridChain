@@ -4,6 +4,8 @@ import axios from "axios"
 import Card from './Card.js'
 import Navbar from "./Navbar.js";
 import background from '../img/background.jpg'
+// import background from '../img/2.jpg'
+// import background from '../img/1.webp'
 
 function Home() {
 

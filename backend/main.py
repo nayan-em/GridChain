@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from sqlalchemy import false
+from optimization import optimize
 import models as dbHandler
 
 from src.Blockchain import Blockchain
@@ -18,8 +19,12 @@ conn.execute("""CREATE TABLE IF NOT EXISTS users (
   password text not null
 )""")
 
+# conn.execute("""DROP TABLE trans""")
+
 conn.execute("""CREATE TABLE IF NOT EXISTS trans (
+  id INTEGER primary key AUTOINCREMENT,
   name text not null,
+  hour INTEGER not null,
   direction text not null,
   energy text not null,
   price text not null,
@@ -63,6 +68,7 @@ def verifyUser():
 def getUserDetails():
     id = request.args.get('id')
     getUserData = dbHandler.getUser(id)
+    # print(getUserData)
     return jsonify(getUserData[0])
 
 @app.route('/allUsers', methods=['GET'])
@@ -74,10 +80,11 @@ def getAllUsers():
 @app.route('/viewTrans', methods=['GET'])
 def viewTrans():
     name = request.args.get('name')
+    hour = request.args.get('selectedHour')
     if name == "NULL":
-        trans = dbHandler.getAllTrans()
+        trans = dbHandler.getAllTrans(hour)
     else:
-        trans = dbHandler.getMyTrans(name)
+        trans = dbHandler.getMyTrans(name, hour)
 
     return jsonify(trans)
 
@@ -85,13 +92,13 @@ def viewTrans():
 def addTrans():
     # id = request.args.get('id')
     name = request.args.get('name')
+    hour = request.args.get('hour')
     direction = request.args.get('direction')
     energy = request.args.get('energy')
     price = request.args.get('price')
     desc = request.args.get('desc')
-    print("this is the id:::::::::::::::: ", id)
 
-    dbHandler.insertTrans(name, direction, energy, price, desc)
+    dbHandler.insertTrans(name, direction, energy, price, desc, hour)
     return "Trans added successfully"
 
 @app.route('/createTrans', methods=['POST'])
@@ -129,11 +136,24 @@ def viewAllTrans():
     userId = request.args.get('userId')
     return jsonify(printAllTrans(blockchain.blockchain, userId))
 
+@app.route('/optimizeTrans', methods=['GET'])
+def optimizeTrans():
+    hour = request.args.get('hour')
+    optimize(hour)
+    return jsonify(optimize(hour))
+
+@app.route('/deleteTrans', methods=['POST'])
+def deleteTrans():
+    id = request.args.get('id')
+    dbHandler.deleteTrans(id)
+
 @app.route('/viewBlockchain', methods=['GET'])
 def viewBlockchain():
-    while len(blockchain.transactions) > 0:
-        blockchain.mineBlock(max_trans_per_Block, difficulty)
-    return jsonify(printBlockchain(blockchain.blockchain))
+    optimize()
+    return "Successfully optimized the transactions"
+    # while len(blockchain.transactions) > 0:
+    #     blockchain.mineBlock(max_trans_per_Block, difficulty)
+    # return jsonify(printBlockchain(blockchain.blockchain))
 
 if __name__ == '__main__':
     app.run(debug = True)

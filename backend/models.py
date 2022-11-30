@@ -25,43 +25,66 @@ def getAllUsers(id):
   con.close()
   return users
 
-def insertTrans(name, direction, energy, price, desc):
+def insertTrans(name, direction, energy, price, desc, hour):
   con = sql.connect("database.db")
   cur = con.cursor()
-  cur.execute("INSERT INTO trans VALUES (?,?,?,?,?);", (name, direction, energy, price, desc))
+  cur.execute("INSERT INTO trans (name, direction, energy, price, desc, hour) VALUES (?,?,?,?,?,?);", (name, direction, energy, price, desc, hour))
   con.commit()
   con.close()
 
-def getAllTrans():
+def getAllTrans(hour):
   con = sql.connect("database.db")
   cur = con.cursor()
-  cur.execute("SELECT * FROM trans")
+  cur.execute("SELECT * FROM trans WHERE trans.hour=?;", (hour,))
   trans = cur.fetchall()
   con.commit()
   con.close()
   return trans
 
-def getMyTrans(name):
+def getMyTrans(name, hour):
   con = sql.connect("database.db")
   cur = con.cursor()
-  cur.execute("SELECT * FROM trans WHERE trans.name=?;", (name,))
+  cur.execute("SELECT * FROM trans WHERE (trans.name=? AND trans.hour=?);", (name, hour))
   trans = cur.fetchall()
   con.commit()
   con.close()
   return trans
 
-def insertCandidate(pollId, name, desc):
+def getCurrentTrans(hour):
   con = sql.connect("database.db")
   cur = con.cursor()
-  cur.execute("INSERT INTO candidates (pollId,name,desc) VALUES (?,?,?);", (pollId, name, desc))
+  cur.execute("SELECT * FROM trans WHERE trans.hour=?;", (hour,))
+  trans = cur.fetchall()
+  con.commit()
+  con.close()
+  return trans
+
+def deleteCurrentTrans():
+  con = sql.connect("database.db")
+  cur = con.cursor()
+  cur.execute("DELETE FROM trans")
   con.commit()
   con.close()
 
-def getCandidates(pollId):
+def deleteTrans(id):
   con = sql.connect("database.db")
   cur = con.cursor()
-  cur.execute("SELECT * FROM candidates WHERE candidates.pollId=(?);", (pollId,))
-  candidates = cur.fetchall()
+  cur.execute("DELETE FROM trans WHERE trans.id=?;", (id, ))
   con.commit()
   con.close()
-  return candidates
+
+# def insertCandidate(pollId, name, desc):
+#   con = sql.connect("database.db")
+#   cur = con.cursor()
+#   cur.execute("INSERT INTO candidates (pollId,name,desc) VALUES (?,?,?);", (pollId, name, desc))
+#   con.commit()
+#   con.close()
+
+# def getCandidates(pollId):
+#   con = sql.connect("database.db")
+#   cur = con.cursor()
+#   cur.execute("SELECT * FROM candidates WHERE candidates.pollId=(?);", (pollId,))
+#   candidates = cur.fetchall()
+#   con.commit()
+#   con.close()
+#   return candidates

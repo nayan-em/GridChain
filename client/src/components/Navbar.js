@@ -3,9 +3,12 @@ import Form from 'react-bootstrap/Form'
 import axios from 'axios'
 import { useState, useEffect } from "react"
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { hours } from './Utils'
+import Select from 'react-select'
 
 function Navbar({ id }) {
 
+  // var Select = require('react-select')
   const navigate = useNavigate()
   const regex = /^\s*$/
 
@@ -21,7 +24,7 @@ function Navbar({ id }) {
 
 
   const [user, setUser] = useState([])
-  // const [user2, setUser2] = useState([])
+  const [hour, setHour] = useState(0)
   const [direction, setDirection] = useState(0)
   const [energy, setEnergy] = useState("")
   const [price, setPrice] = useState("")
@@ -49,7 +52,7 @@ function Navbar({ id }) {
     // })
   }, [])
 
-  const handleShow = () => setShow(true)
+  // const handleShow = () => setShow(true)
 
   const handleClose = () => {
     setTitle("")
@@ -63,31 +66,6 @@ function Navbar({ id }) {
     setShow(false)
   }
 
-  const handleSubmit = () => {
-    if (title.match(regex) != null) {
-      setIsTitleEmpty(true)
-      return
-    }
-    else setIsTitleEmpty(false)
-
-    if (desc.match(regex) != null) {
-      setIsDescEmpty(true)
-      return
-    }
-    else setIsDescEmpty(false)
-
-    axios.post("/poll", {}, {
-      params: {
-        name: title,
-        desc: desc
-      }
-    })
-      .then(res => {
-        console.log(res.data)
-        navigate(0)
-      })
-  }
-
   const handleAllTrans = () => {
     navigate('/viewAllTrans', {
       state: { id }
@@ -98,7 +76,13 @@ function Navbar({ id }) {
     navigate('/viewMyTrans', {
       state: { id, name: user[1] }
     })
-  }
+  } 
+
+  const handleOptimizedTrans = () => {
+    navigate('/viewOptimizedTrans', {
+      state: { id }
+    })
+  } 
 
   const handleSubmitTrans = () => {
     console.log("user: ", user)
@@ -125,6 +109,7 @@ function Navbar({ id }) {
       params: {
         // id: user[0],
         name: user[1],
+        hour,
         direction,
         energy,
         price,
@@ -177,6 +162,10 @@ function Navbar({ id }) {
 
               <div className="nav-item me-4" style={{ "cursor": "pointer" }}>
                 <div className="nav-link" onClick={handleMyTrans}>My Trans</div>
+              </div>
+
+              <div className="nav-item me-4" style={{ "cursor": "pointer" }}>
+                <div className="nav-link" onClick={handleOptimizedTrans}>Optimized Trans</div>
               </div>
 
               <div className="nav-item" style={{ "cursor": "pointer" }}>
@@ -235,6 +224,16 @@ function Navbar({ id }) {
                 onChange={e => setDirection(1)}
               />
             </div>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Hour</Form.Label>
+              <Select
+                name="form-field-name"
+                options={hours}
+                onChange={e => {console.log("HOUR: ", e.value);setHour(e.value)}}
+              />
+            </Form.Group>
+
 
             <Form.Group className="mb-3">
               <Form.Label>Energy Amount (in kWh)</Form.Label>

@@ -1,8 +1,21 @@
 import './Card.css'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
+import { Trash3 } from "react-bootstrap-icons"
 
-const TransCard = ({ index, num, name, direction, energy, price, desc }) => {
+const TransCard = ({ index, num, id, name, direction, energy, price, desc }) => {
 
-    console.log(name);
+    // console.log(name)
+    const navigate = useNavigate()
+
+    const handleDeleteTrans = () => {
+      axios.post("/deleteTrans", {}, {
+        params: {
+          id
+        }
+      })
+      .then(navigate(0))
+    }
 
     return (
         <div className="card bg-light m-2 p-2" style={{width:"25rem"}}>
@@ -14,7 +27,16 @@ const TransCard = ({ index, num, name, direction, energy, price, desc }) => {
                   <div className={"h6 text-danger mb-1 col-6 text-start "+(direction=="1" ? "" : "d-none")}>Buying</div>
                 </div> */}
                 <div className='row ms-2 mb-3'>
-                  <div className="h4 text-start text-success">Transaction : {num}</div>
+                  <div className="col-8 h4 text-start text-success">Transaction : {num}</div>
+                  <div className="col-2"></div>
+                  <div className="col-2 h5 text-danger align-items-end">
+                   
+                    <span id='trashIcon' onClick={handleDeleteTrans}>
+
+                    <Trash3/>
+                    </span>
+                   
+                  </div>
                   {/* <div className="h6 text-danger mb-1 col-6 text-start">{energy} kWh</div> */}
                 </div>
                 <div className='row ms-2 text-start'>
